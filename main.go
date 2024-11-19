@@ -25,6 +25,10 @@ var lock sync.Mutex
       payload = requestdata;
 	   return payload,nil
    })
+   app.GET("/data",func(c *gofr.Context) (interface{}, error) {
+	lock.Lock()
+	
+   })
 app.Run()
  }
 
