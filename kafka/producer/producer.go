@@ -22,11 +22,11 @@ func kafkaProducer(){
 	}
 	defer file.Close()
 	reader := csv.NewReader(file)
-	record,err := reader.ReadAll()
+	records,err := reader.ReadAll()
 	if err != nil{
 		log.Fatalf("Error while reading file %v",err)
 	}
-	for _,record := range record{
+	for _,record := range records{
 		message := fmt.Sprintf("First Name: %s, Last Name: %s", record[0], record[1]) 
 		err := kafkaWriter.WriteMessages(ctx,kafka.Message{
 			Value: []byte(message),
@@ -36,5 +36,5 @@ func kafkaProducer(){
 		}
 		fmt.Println("Sent to Kafka:", message)
 	}
-	kafkaWriter.Close()
+	defer kafkaWriter.Close()
 }
