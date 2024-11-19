@@ -1,4 +1,4 @@
-package producer
+package main
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 	"github.com/segmentio/kafka-go"
 )
 
-func kafkaProducer(){
+func main(){
 	ctx := context.Background() 
 	kafkaWriter := kafka.NewWriter(kafka.WriterConfig{
 		Brokers: []string{"localhost:9092"} ,
