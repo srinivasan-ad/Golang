@@ -27,7 +27,11 @@ var lock sync.Mutex
    })
    app.GET("/data",func(c *gofr.Context) (interface{}, error) {
 	lock.Lock()
-	
+	defer lock.Unlock()
+	if payload == nil {
+		return "No data has been recieved yet :(" , nil
+	}
+    return  payload , nil
    })
 app.Run()
  }
