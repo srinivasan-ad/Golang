@@ -31,7 +31,10 @@ var lock sync.Mutex
 	if payload == nil {
 		return "No data has been recieved yet :(" , nil
 	}
-    return  payload , nil
+	return map[string]interface{}{
+		"message": "Data successfully retrieved!",
+		"data":    payload,
+	}, nil
    })
 app.Run()
  }
