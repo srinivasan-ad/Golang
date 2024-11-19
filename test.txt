@@ -1,0 +1,58 @@
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"github.com/gofr-framework/gofr"
+	"net/http"
+	"sync"
+)
+
+// Global variable to store the data received via PUT request
+var storedData map[string]interface{}
+var mu sync.Mutex
+
+func main() {
+	// Create a new GoFr app
+	app := gofr.New()
+
+	// Define a PUT route for "/data" to accept and store user payload
+	app.PUT("/data", func(c *gofr.Context) (interface{}, error) {
+		// Create a map to store the incoming JSON data
+		var requestData map[string]interface{}
+
+		// Decode the JSON body into requestData
+		err := json.NewDecoder(c.Request.Body).Decode(&requestData)
+		if err != nil {
+			// If there is an error decoding, return an error message
+			return nil, &gofr.Error{
+				Code:    http.StatusBadRequest,
+				Message: "Invalid JSON payload",
+			}
+		}
+
+		// Lock the mutex to safely store the data in the global variable
+		mu.Lock()
+		storedData = requestData
+		mu.Unlock()
+
+		// Return the received data (just as confirmation)
+		return requestData, nil
+	})
+
+	// Define a GET route for "/data" to retrieve the stored data
+	app.GET("/data", func(c *gofr.Context) (interface{}, error) {
+		// Lock the mutex to safely access the stored data
+		mu.Lock()
+		defer mu.Unlock()
+
+		// Return the stored data, or a message if no data has been set yet
+		if storedData == nil {
+			return "No data has been stored yet", nil
+		}
+		return storedData, nil
+	})
+
+	// Run the app
+	app.Run()
+}

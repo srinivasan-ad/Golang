@@ -1,14 +1,29 @@
 package main
-import "gofr.dev/pkg/gofr"
+import (
+	"gofr.dev/pkg/gofr"
+	"log"
+	"fmt"
+	"sync"	
+)
 //Add your own config folder , i have removed mine :)
-const payload = "Trying go for the first time !";
+var payload map[string]interface{};
+var lock sync.Mutex
  func main(){
 	app := gofr.New();
 	app.GET("/ping", func(c *gofr.Context) (interface{}, error) {
 		return "PONG" , nil
    })
-   app.PUT("/data",func(c *gofr.Context) (interface{}, error) {
-	return payload,nil
+   app.POST("/data",func(c *gofr.Context) (interface{}, error) {
+	   var requestdata map[string]interface{}
+	   if err := c.Bind(&requestdata); err != nil {
+		log.Println("Error binding data:", err)
+		return nil, err 
+	}
+	fmt.Println("Data entered is :",requestdata);
+	  lock.Lock()
+	  defer lock.Unlock()
+      payload = requestdata;
+	   return payload,nil
    })
 app.Run()
  }
