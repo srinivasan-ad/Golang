@@ -5,8 +5,8 @@ import (
     "os"
     "log"
 )
-func ReadCSV() ([][]string, error) {
-    file, err := os.Open("./csv/data.csv")
+func ReadCSV(CSVfile string) ([][]string, error) {
+    file, err := os.Open(CSVfile)
     if err != nil {
         log.Fatalf("Could not open the CSV file: %v", err)
         return nil, err

@@ -10,7 +10,7 @@ type ProducerConfig struct {
 	Broker string
 	Topic  string
 }
-func KafkaProducer(config ProducerConfig ) error {
+func KafkaProducer(config ProducerConfig , CSVfile string) error {
 	ctx := context.Background()
 	kafkaWriter := kafka.NewWriter(kafka.WriterConfig{
 		Brokers: []string{config.Broker},
@@ -18,7 +18,7 @@ func KafkaProducer(config ProducerConfig ) error {
 	})
 	defer kafkaWriter.Close()
 
-	records, err := ReadCSV()
+	records, err := ReadCSV(CSVfile)
 	if err != nil {
 		log.Printf("Failed to read CSV: %v", err)
 		return err
