@@ -11,11 +11,11 @@ type ProduceRequest struct {
 	CSVFile string `json:"csvFile"`
 }
 
-func ProducerHandler(c *gofr.Context) string {
+func ProducerHandler(c *gofr.Context)  {
 		var req ProduceRequest
 		if err := c.Bind(&req); err != nil {
-			errormsg := "Error in payload"
-			return errormsg
+		
+		
 		}
 		config := producer.ProducerConfig{
 			Broker: req.Broker,
@@ -26,5 +26,5 @@ func ProducerHandler(c *gofr.Context) string {
 				log.Printf("Failed to produce messages: %v", err)
 			}
 		}()
-	      return "Message entered successfully :)"
+
 	}
