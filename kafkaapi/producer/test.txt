@@ -1,0 +1,17 @@
+for {
+		msg, err := kafkaReader.ReadMessage(context.Background())
+		if err != nil {
+			log.Fatalf("Error reading message from Kafka: %v", err)
+		}
+
+		// Print the raw JSON message received
+		fmt.Printf("Received message: %s\n", string(msg.Value))
+		var dataMap map[string]interface{}
+		err = json.Unmarshal(msg.Value, &dataMap)
+		if err != nil {
+			log.Printf("Failed to parse JSON message: %v", err)
+			continue
+		}
+
+		fmt.Printf("Processed message: %v\n", dataMap)
+	}
