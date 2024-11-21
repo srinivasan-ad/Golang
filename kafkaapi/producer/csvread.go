@@ -8,7 +8,7 @@ import (
 func ReadCSV(CSVfile string) ([][]string, error) {
     file, err := os.Open(CSVfile)
     if err != nil {
-        log.Fatalf("Could not open the CSV file: %v", err)
+        log.Fatalf("Could not open the CSV file: %v filename : %v ", err ,CSVfile)
         return nil, err
     }
     defer file.Close()
