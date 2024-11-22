@@ -1,8 +1,9 @@
 package producer
 import(
-	"context"
+	// "context"
 	"fmt"
-	"github.com/segmentio/kafka-go"
+	// "github.com/segmentio/kafka-go"
+		"gofr.dev/pkg/gofr"
 	"encoding/json"
 	"log"
 )
@@ -10,43 +11,81 @@ type ProducerConfig struct {
 	Broker string
 	Topic  string
 }
-func KafkaProducer(config ProducerConfig , CSVfile string) error {
-	ctx := context.Background()
-	kafkaWriter := kafka.NewWriter(kafka.WriterConfig{
-		Brokers: []string{config.Broker},
-		Topic: config.Topic,
-	})
-	defer kafkaWriter.Close()
+// func KafkaProducer(config ProducerConfig , CSVfile string) error {
+// 	ctx := context.Background()
+// 	kafkaWriter := kafka.NewWriter(kafka.WriterConfig{
+// 		Brokers: []string{config.Broker},
+// 		Topic: config.Topic,
+// 	})
+// 	defer kafkaWriter.Close()
 
-	records, err := ReadCSV(CSVfile)
-	if err != nil {
-		log.Printf("Failed to read CSV: %v", err)
-		return err
-	}
-	for _, record := range records {
-		dataMap := make(map[string]string)
-		for i, value := range record {
-			dataMap[fmt.Sprintf("Column%d", i+1)] = value
-		}
+// 	records, err := ReadCSV(CSVfile)
+// 	if err != nil {
+// 		log.Printf("Failed to read CSV: %v", err)
+// 		return err
+// 	}
+// 	for _, record := range records {
+// 		dataMap := make(map[string]string)
+// 		for i, value := range record {
+// 			dataMap[fmt.Sprintf("Column%d", i+1)] = value
+// 		}
 
-		message, err := json.Marshal(dataMap)
-		if err != nil {
-			log.Printf("Error marshalling data into JSON: %v", err)
-			continue
-		}
+// 		message, err := json.Marshal(dataMap)
+// 		if err != nil {
+// 			log.Printf("Error marshalling data into JSON: %v", err)
+// 			continue
+// 		}
 
-		err = kafkaWriter.WriteMessages(ctx, kafka.Message{
-			Value: message,
-		})
-		if err != nil {
-			log.Printf("Error sending message to Kafka: %v", err)
-			continue
-		}
+// 		err = kafkaWriter.WriteMessages(ctx, kafka.Message{
+// 			Value: message,
+// 		})
+// 		if err != nil {
+// 			log.Printf("Error sending message to Kafka: %v", err)
+// 			continue
+// 		}
 
-		log.Printf("Sent message to Kafka: %s", message)
-	}
+// 		log.Printf("Sent message to Kafka: %s", message)
+// 	}
 
-	kafkaWriter.Close()
-	return nil
+// 	kafkaWriter.Close()
+// 	return nil
+// }
+
+
+
+	
+func KafkaProducer(ctx *gofr.Context, config ProducerConfig, CSVfile string) error {
+    records, err := ReadCSV(CSVfile)
+    if err != nil {
+        log.Printf("Failed to read CSV: %v", err)
+        return err
+    }
+    publisher := ctx.GetPublisher()
+    if publisher == nil {
+        log.Printf("Publisher is not initialized!")
+        return fmt.Errorf("publisher is not initialized")
+    }
+    for _, record := range records {
+        dataMap := make(map[string]string)
+        for i, value := range record {
+            dataMap[fmt.Sprintf("Column%d", i+1)] = value
+        }
+        message, err := json.Marshal(dataMap)
+        if err != nil {
+            log.Printf("Error marshalling data into JSON: %v", err)
+            continue
+        }
+        log.Printf("Preparing to publish message to Kafka: %s", message)
+
+     
+        err = publisher.Publish(ctx,"test-topic", message)
+        if err != nil {
+            log.Printf("Error publishing message to Kafka: %v", err)
+            continue
+        }
+
+        log.Printf("Published message to Kafka: %s", message)
+    }
+
+    return nil
 }
-

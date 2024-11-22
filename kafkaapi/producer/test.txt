@@ -1,17 +1,29 @@
-for {
-		msg, err := kafkaReader.ReadMessage(context.Background())
-		if err != nil {
-			log.Fatalf("Error reading message from Kafka: %v", err)
-		}
+func Validate(u *UserType) bool {
+        return gt(len(u.UserName), 5) && lt(len(u.UserName), 50) && gt(u.Id, 1) && lt(u.Id, 100) && gt(len(u.Email), 10) && lt(len(u.Email), 100) && lt(u.Address.Zip, 9999) && gt(len(u.Address.Country.Name), 3) && lt(len(u.Address.Country.Name), 50) && gt(len(u.Address.Country.Code), 2) && lt(len(u.Address.Country.Code), 10) && gt(len(u.Address.Street), 10) && lt(len(u.Address.Street), 100) && gt(len(u.Address.City), 3) && lt(len(u.Address.City), 50) && gt(len(u.Preferences.Theme), 3) && lt(len(u.Preferences.Theme), 20) && gt(len(u.Preferences.Language), 2) && lt(len(u.Preferences.Language), 10)
+}
 
-		// Print the raw JSON message received
-		fmt.Printf("Received message: %s\n", string(msg.Value))
-		var dataMap map[string]interface{}
-		err = json.Unmarshal(msg.Value, &dataMap)
-		if err != nil {
-			log.Printf("Failed to parse JSON message: %v", err)
-			continue
-		}
+type UserType struct {
+        UserName string `json:"userName"`
+        Id int `json:"id"`
+        Email string `json:"email"`
+        Address UserAddressType `json:"address"`
+type UserAddressType struct {
+        Zip int `json:"zip"`
+        Country UserAddressCountryType `json:"country"`
+type UserAddressCountryType struct {
+        Name string `json:"name"`
+        Code string `json:"code"`
+}
 
-		fmt.Printf("Processed message: %v\n", dataMap)
-	}
+        Street string `json:"street"`
+        City string `json:"city"`
+}
+
+        Preferences UserPreferencesType `json:"preferences"`
+type UserPreferencesType struct {
+        Theme string `json:"theme"`
+        NotificationsEnabled bool `json:"notificationsEnabled"`
+        Language string `json:"language"`
+}
+
+}
